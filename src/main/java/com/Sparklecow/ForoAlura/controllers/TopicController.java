@@ -1,12 +1,14 @@
 package com.Sparklecow.ForoAlura.controllers;
 
 
-import com.Sparklecow.ForoAlura.entities.Topic;
+import com.Sparklecow.ForoAlura.entities.DataRegisterTopic;
+import com.Sparklecow.ForoAlura.entities.DataResponseTopic;
+import com.Sparklecow.ForoAlura.entities.DataUpdateTopic;
 import com.Sparklecow.ForoAlura.services.TopicService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/topics")
@@ -18,32 +20,32 @@ public class TopicController {
     }
     
     @GetMapping
-    public ResponseEntity<List<Topic>> findAllTopics(){
+    public ResponseEntity<List<DataResponseTopic>> findAllTopics(){
         return topicService.findAllTopics();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Topic>> findTopic(@PathVariable Long id){
+    public ResponseEntity<DataResponseTopic> findTopic(@PathVariable Long id){
         return topicService.findTopic(id);
     }
 
     @PostMapping
-    public ResponseEntity<Topic> createTopic(@RequestBody Topic topic){
-        return topicService.createTopic(topic);
+    public ResponseEntity<DataResponseTopic> createTopic(@RequestBody @Valid DataRegisterTopic dataRegisterTopic){
+        return topicService.createTopic(dataRegisterTopic);
     }
 
     @PutMapping
-    public ResponseEntity<Topic> updateTopic(@RequestBody Topic topic){
-        return topicService.updateTopic(topic);
+    public ResponseEntity<DataResponseTopic> updateTopic(@RequestBody @Valid DataUpdateTopic dataUpdateTopic){
+        return topicService.updateTopic(dataUpdateTopic);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Topic> deleteTopic(@PathVariable Long id){
+    public ResponseEntity deleteTopic(@PathVariable Long id){
         return topicService.deleteTopic(id);
     }
 
     @DeleteMapping
-    public ResponseEntity<Topic> deleteAllTopic(){
+    public ResponseEntity deleteAllTopic(){
         return topicService.deleteAllTopics();
 
     }

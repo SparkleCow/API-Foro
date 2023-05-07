@@ -1,9 +1,14 @@
 package com.Sparklecow.ForoAlura.services;
 
+import com.Sparklecow.ForoAlura.entities.DataRegisterTopic;
+import com.Sparklecow.ForoAlura.entities.DataResponseTopic;
+import com.Sparklecow.ForoAlura.entities.DataUpdateTopic;
 import com.Sparklecow.ForoAlura.entities.Topic;
 import com.Sparklecow.ForoAlura.repository.TopicRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,39 +21,44 @@ public class TopicService {
 
 
     //Metodo para encontrar todos los topicos
-    public ResponseEntity<List<Topic>> findAllTopics(){
-        return ResponseEntity.ok(repository.findAll());
+    public ResponseEntity<List<DataResponseTopic>> findAllTopics(){
+        List<Topic> lista = repository.findAll();
+        ArrayList<DataResponseTopic> array = new ArrayList<>();
+        lista.forEach(x -> array.add(new DataResponseTopic(x.getId(), x.getTitulo(), x.getMensaje(),x.getFechaCreacion(),
+                                            x.status, x.getAutor(),x.getCurso())));
+        return ResponseEntity.ok(array);
     }
 
     //Metodo para encontrar un topico
-    public ResponseEntity<Optional<Topic>> findTopic(Long id){
+    public ResponseEntity<DataResponseTopic> findTopic(Long id){
         Optional<Topic> topicOpt = repository.findById(id);
-        if(topicOpt.isEmpty()){
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(topicOpt);
+        return topicOpt.map(topic -> ResponseEntity.ok(new DataResponseTopic(topic.getId(), topic.getTitulo(),
+                topic.getMensaje(), topic.getFechaCreacion(), topic.getStatus(),
+                topic.getAutor(), topic.getCurso()))).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     //Metodo para crear un topico
-    public ResponseEntity<Topic> createTopic(Topic topic){
-        if(topic.getId()!=null){
-            return ResponseEntity.badRequest().build();
-        }
-        return ResponseEntity.ok(repository.save(topic));
+    public ResponseEntity<DataResponseTopic> createTopic(DataRegisterTopic dataRegisterTopic){
+        Topic topic = repository.save(new Topic(dataRegisterTopic));
+        return ResponseEntity.ok(new DataResponseTopic(topic.getId(),
+                topic.getTitulo(),topic.getMensaje(), topic.getFechaCreacion(),
+                topic.getStatus(),topic.getAutor(),topic.getCurso()));
     }
 
     //Metodo para actualizar un topico
-    public ResponseEntity<Topic> updateTopic(Topic topic){
-        if(topic.getId()==null){
-            return ResponseEntity.badRequest().build();
-        }if(repository.existsById(topic.getId())){
-            return ResponseEntity.ok(repository.save(topic));
+    public ResponseEntity<DataResponseTopic> updateTopic(DataUpdateTopic dataUpdateTopic){
+        if(repository.existsById(dataUpdateTopic.id())){
+            Topic topic = repository.getReferenceById(dataUpdateTopic.id());
+            topic.updateTopic(dataUpdateTopic);
+            return ResponseEntity.ok(new DataResponseTopic(topic.getId(), topic.getTitulo(),
+                    topic.getMensaje(), topic.getFechaCreacion(), topic.getStatus(),
+                    topic.getAutor(), topic.getCurso()));
         }
         return ResponseEntity.notFound().build();
     }
 
     //Metodo para eliminar un topicop
-    public ResponseEntity<Topic> deleteTopic(Long id){
+    public ResponseEntity deleteTopic(Long id){
         if(repository.existsById(id)){
             repository.deleteById(id);
             return ResponseEntity.noContent().build();
@@ -57,7 +67,7 @@ public class TopicService {
     }
 
     //Metodo para eliminar todos los topicos
-    public ResponseEntity<Topic> deleteAllTopics(){
+    public ResponseEntity deleteAllTopics(){
         repository.deleteAll();
         return ResponseEntity.noContent().build();
     }
