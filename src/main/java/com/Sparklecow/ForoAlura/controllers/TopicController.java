@@ -43,7 +43,8 @@ public class TopicController {
     }
 
     @DeleteMapping
-    public ResponseEntity<Topic> deleteAllTopic(@PathVariable Long id){
+    public ResponseEntity<Topic> deleteAllTopic(){
         return topicService.deleteAllTopics();
+
     }
 }

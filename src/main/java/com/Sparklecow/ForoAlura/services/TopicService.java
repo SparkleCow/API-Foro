@@ -41,8 +41,10 @@ public class TopicService {
     public ResponseEntity<Topic> updateTopic(Topic topic){
         if(topic.getId()==null){
             return ResponseEntity.badRequest().build();
+        }if(repository.existsById(topic.getId())){
+            return ResponseEntity.ok(repository.save(topic));
         }
-        return ResponseEntity.ok(repository.save(topic));
+        return ResponseEntity.notFound().build();
     }
 
     //Metodo para eliminar un topicop
